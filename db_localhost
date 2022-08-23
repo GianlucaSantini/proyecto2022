@@ -1,13 +1,15 @@
 -- phpMyAdmin SQL Dump
--- version 4.6.6
+-- version 4.9.1
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost
--- Tiempo de generación: 22-08-2022 a las 14:44:13
--- Versión del servidor: 5.7.17-log
--- Versión de PHP: 5.6.30
+-- Tiempo de generación: 23-08-2022 a las 21:12:55
+-- Versión del servidor: 8.0.17
+-- Versión de PHP: 7.3.10
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
+START TRANSACTION;
 SET time_zone = "+00:00";
 
 
@@ -23,36 +25,35 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `alertas`
+-- Estructura de tabla para la tabla `alerta`
 --
 
-CREATE TABLE `alertas` (
+CREATE TABLE `alerta` (
   `idAlerta` int(255) NOT NULL,
-  `hora` time NOT NULL,
+  `hora` time(6) NOT NULL,
   `fecha` date NOT NULL,
-  `campaña` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `campaign` int(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `campaña`
+-- Estructura de tabla para la tabla `campaign`
 --
 
-CREATE TABLE `campaña` (
-  `idCampaña` int(255) NOT NULL,
-  `clientes` varchar(255) NOT NULL,
-  `datos` int(255) NOT NULL,
+CREATE TABLE `campaign` (
+  `idCampaign` int(255) NOT NULL,
+  `datos` varchar(255) NOT NULL,
   `acc_token` varchar(255) NOT NULL,
-  `nombreCampaña` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `nombreCampaign` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Volcado de datos para la tabla `campaña`
+-- Volcado de datos para la tabla `campaign`
 --
 
-INSERT INTO `campaña` (`idCampaña`, `clientes`, `datos`, `acc_token`, `nombreCampaña`) VALUES
-(1, '', 0, 'asdfasfdsadf', '');
+INSERT INTO `campaign` (`idCampaign`, `datos`, `acc_token`, `nombreCampaign`) VALUES
+(1, '0', 'fdasfsaf', '');
 
 -- --------------------------------------------------------
 
@@ -62,28 +63,35 @@ INSERT INTO `campaña` (`idCampaña`, `clientes`, `datos`, `acc_token`, `nombreC
 
 CREATE TABLE `usuario` (
   `idUsuario` int(255) NOT NULL,
+  `nombre` varchar(255) NOT NULL,
   `mail` varchar(255) NOT NULL,
-  `Nombre` varchar(255) NOT NULL,
-  `Apellido` varchar(255) NOT NULL,
   `cliente_agencia` tinyint(1) NOT NULL,
-  `contraseña` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `apellido` varchar(255) NOT NULL,
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Volcado de datos para la tabla `usuario`
+--
+
+INSERT INTO `usuario` (`idUsuario`, `nombre`, `mail`, `cliente_agencia`, `apellido`, `password`) VALUES
+(1, 'Hola', '', 0, '', '');
 
 --
 -- Índices para tablas volcadas
 --
 
 --
--- Indices de la tabla `alertas`
+-- Indices de la tabla `alerta`
 --
-ALTER TABLE `alertas`
+ALTER TABLE `alerta`
   ADD PRIMARY KEY (`idAlerta`);
 
 --
--- Indices de la tabla `campaña`
+-- Indices de la tabla `campaign`
 --
-ALTER TABLE `campaña`
-  ADD PRIMARY KEY (`idCampaña`);
+ALTER TABLE `campaign`
+  ADD PRIMARY KEY (`idCampaign`);
 
 --
 -- Indices de la tabla `usuario`
@@ -96,15 +104,24 @@ ALTER TABLE `usuario`
 --
 
 --
--- AUTO_INCREMENT de la tabla `alertas`
+-- AUTO_INCREMENT de la tabla `alerta`
 --
-ALTER TABLE `alertas`
+ALTER TABLE `alerta`
   MODIFY `idAlerta` int(255) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `campaign`
+--
+ALTER TABLE `campaign`
+  MODIFY `idCampaign` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
 --
 -- AUTO_INCREMENT de la tabla `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `idUsuario` int(255) NOT NULL AUTO_INCREMENT;
+  MODIFY `idUsuario` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+COMMIT;
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
