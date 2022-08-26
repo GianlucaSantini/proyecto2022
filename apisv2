@@ -1,7 +1,9 @@
 const express = require('express');
-const db = require('./db')
+const db = require('./config/db')
 const cors = require('cors')
-const nodemailer = require("nodemailer")
+const formData = require('form-data');
+const Mailgun = require('mailgun.js');
+const mailgun = new Mailgun(formData);
 
 const app = express();
 const PORT = 3001;
@@ -66,15 +68,16 @@ app.post('/registerCampaign', (req, res) => {
 
 // Insertar Datos
 
-app.post('/insertData', (req,res)=>{
-    datos = {'spend':25}
-
-    db.query('INSTER INTO campaign (datos) VALUES (?)',[datos], (err,result)=>{
-        if(err){
-            return res.status(404).send({ error: true })
+app.post('/registerCampaign', (req, res) => {
+    const nombreCampaña = req.body.nombreCampaña
+    const acc_token = req.body.acc_token;
+    const idCampaña = req.body.idCampaña
+    db.query('INSERT INTO campaign (nombreCampaign, acc_token, idCampaign) VALUES (?,?,?)', [nombreCampaña, acc_token, idCampaña], (err, result) => {
+        if (err) {
+            return res.json({error:true})
         }
-        res.json(result[0])
-        })
+        res.json({error:false})
+    })
 })
 
 //Conseguir Datos
@@ -90,34 +93,42 @@ app.post('/getData', (req,res)=>{
 })
 
 app.post("/sendEmail", (req,res)=>{
-    const email = req.body.email
-    var transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: 'youremail@gmail.com',
-          pass: 'yourpassword'
-        }
-      });
-      
-      var mailOptions = {
-        from: 'youremail@gmail.com',
-        to: email,
-        subject: 'MVP',
-        text: 'Hubo un cambio!'
-      };
-      
-      transporter.sendMail(mailOptions, function(error, info){
-        if (error) {
-          console.log(error);
-        } else {
-          console.log('Email sent: ' + info.response);
-        }
-      });
+    const mg = mailgun.client({
+        username: 'api',
+        key: 'dc63baec41792096c20dcd77e1c9fbb4-c76388c3-3134c64d',
+    });
+    mg.messages
+        .create("sandbox4480a8399e5a42fb9dd8ddc54dde3609.mailgun.org", {
+            from: "Mailgun Sandbox <postmaster@sandbox4480a8399e5a42fb9dd8ddc54dde3609.mailgun.org>",
+            to: ["gianluca.santini.pellegrini@gmail.com"],
+            subject: "Hello",
+            text: "Testing some Mailgun awesomness!",
+        })
+        .then(msg => res.send(msg)) // logs response data
+        .catch(err => res.status(404).send({ error: true })) // logs any error`;
 
 
 })
 
+app.get('/get', (req,res)=>{
+    res.sendFile(__dirname + "/index.html")
+})
 
+app.post('/post', (req,res)=>{
+    if(req.files){
+        console.log(req.files)
+        var file = req.files.file
+        var filename = file.name
+        console.log(filename)
+    }
+    file.mv('./uploads/'+filename, function(err){
+        if(err){
+            res.send(err)
+        } else {
+            res.send("File Uploaded")
+        }
+    })
+})
 
 app.listen(PORT, () => {
     console.log(`Server is running on ${PORT}`)
