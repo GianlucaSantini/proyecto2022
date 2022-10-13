@@ -1,9 +1,7 @@
 const express = require('express');
-const db = require('./config/db')
+const db = require('./db')
 const cors = require('cors')
-const formData = require('form-data');
-const Mailgun = require('mailgun.js');
-const mailgun = new Mailgun(formData);
+const nodemailer = require("nodemailer")
 
 const app = express();
 const PORT = 3001;
@@ -55,20 +53,6 @@ app.post('/login', (req, res) => {
 //Registrar Campaign
 
 app.post('/registerCampaign', (req, res) => {
-    const nombreCampaign = req.body.nombreCampaign
-    const acc_token = req.body.acc_token;
-    const idCampaign = req.body.idCampaign
-    db.query('INSTER INTO campign (nombreCampaign, acc_token, idCampaign) VALUES (?,?,?)', [nombreCampaign, acc_token, idCampaign], (err, result) => {
-        if (err) {
-            return res.status(404).send({ error: true })
-        }
-        res.json(result[0])
-    })
-})
-
-// Insertar Datos
-
-app.post('/registerCampaign', (req, res) => {
     const nombreCampaña = req.body.nombreCampaña
     const acc_token = req.body.acc_token;
     const idCampaña = req.body.idCampaña
@@ -79,6 +63,17 @@ app.post('/registerCampaign', (req, res) => {
         res.json({error:false})
     })
 })
+
+// app.post('/insertData', (req,res)=>{
+//     datos = {'spend':25}
+
+//     db.query('INSERT INTO campaña (datos) VALUES (?)',[datos], (err,result)=>{
+//         if(err){
+//             console.log(err)
+//         }
+//         console.log(result)
+//         })
+// })
 
 //Conseguir Datos
 
@@ -92,43 +87,64 @@ app.post('/getData', (req,res)=>{
         })
 })
 
-app.post("/sendEmail", (req,res)=>{
-    const mg = mailgun.client({
-        username: 'api',
-        key: 'dc63baec41792096c20dcd77e1c9fbb4-c76388c3-3134c64d',
-    });
-    mg.messages
-        .create("sandbox4480a8399e5a42fb9dd8ddc54dde3609.mailgun.org", {
-            from: "Mailgun Sandbox <postmaster@sandbox4480a8399e5a42fb9dd8ddc54dde3609.mailgun.org>",
-            to: ["gianluca.santini.pellegrini@gmail.com"],
-            subject: "Hello",
-            text: "Testing some Mailgun awesomness!",
-        })
-        .then(msg => res.send(msg)) // logs response data
-        .catch(err => res.status(404).send({ error: true })) // logs any error`;
-
-
-})
-
-app.get('/get', (req,res)=>{
-    res.sendFile(__dirname + "/index.html")
-})
-
-app.post('/post', (req,res)=>{
-    if(req.files){
-        console.log(req.files)
-        var file = req.files.file
-        var filename = file.name
-        console.log(filename)
-    }
-    file.mv('./uploads/'+filename, function(err){
+app.post("/AgregarCliente", (req,res)=>{
+    const cliente = req.body.cliente
+    const idUsuario = req.body.idUsuario
+    db.query('SELECT Nombre FROM usuario', (err,result)=>{
         if(err){
-            res.send(err)
-        } else {
-            res.send("File Uploaded")
+            return res.status(404).send({ error: true })
+        }
+        if (json(result[0]) == cliente){
+            db.query('INSERT INTO campaña (clientes) VALUES (?) WHERE idUsuario = ?',[cliente, idUsuario], (err,result)=>{
+                if(err){
+                    return res.status(404).send({ error: true })
+                }
+                res.json(result[0])
+            })
         }
     })
 })
+    
+app.post("/verCampañasCliente", (req, res)=>{
+    const cliente = req.body.cliente
+    db.query('SELECT (idCampaña) FROM campaña WHERE clientes = ?',[cliente], (err,result)=>{
+        if(err){
+            return res.status(404).send({ error: true })
+        }
+        res.json(result[0])
+        })
+}
+)
+
+app.post("/sendEmail", (req,res)=>{
+    const email = req.body.email
+    var transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: 'youremail@gmail.com',
+          pass: 'yourpassword'
+        }
+      });
+      
+      var mailOptions = {
+        from: 'youremail@gmail.com',
+        to: email,
+        subject: 'MVP',
+        text: 'Hubo un cambio!'
+      };
+      
+      transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+          console.log(error);
+        } else {
+          console.log('Email sent: ' + info.response);
+        }
+      });
+
+
+})
+
+
 
 app.listen(PORT, () => {
     console.log(`Server is running on ${PORT}`)
