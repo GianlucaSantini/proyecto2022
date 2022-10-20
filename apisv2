@@ -105,8 +105,8 @@ app.post("/AgregarCliente", (req,res)=>{
     })
 })
     
-app.post("/verCampañasCliente", (req, res)=>{
-    const cliente = req.body.cliente
+app.post("/:CLIENTE/verCampañasCliente", (req, res)=>{
+    const cliente = req.params.CLIENTE
     db.query('SELECT (idCampaña) FROM campaña WHERE clientes = ?',[cliente], (err,result)=>{
         if(err){
             return res.status(404).send({ error: true })
